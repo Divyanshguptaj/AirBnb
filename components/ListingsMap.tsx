@@ -2,7 +2,7 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React, { memo, useEffect, useRef } from 'react';
 import { defaultStyles } from '@/constants/Styles';
 import { Marker } from 'react-native-maps';
-import MapView from 'react-native-map-clustering';
+import MapView from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
@@ -52,6 +52,11 @@ const ListingsMap = memo(({ listings }: Props) => {
     mapRef.current?.animateToRegion(region);
   };
 
+  // Ref callback for the map
+  const setMapRef = (ref: any) => {
+    mapRef.current = ref;
+  };
+
   // Overwrite the renderCluster function to customize the cluster markers
   const renderCluster = (cluster: any) => {
     const { id, geometry, onPress, properties } = cluster;
@@ -82,14 +87,13 @@ const ListingsMap = memo(({ listings }: Props) => {
   return (
     <View style={defaultStyles.container}>
       <MapView
-        ref={mapRef}
-        animationEnabled={false}
+        ref={(ref) => {
+          if (ref && !mapRef.current) {
+            mapRef.current = ref;
+          }
+        }}
         style={StyleSheet.absoluteFillObject}
-        initialRegion={INITIAL_REGION}
-        clusterColor="#fff"
-        clusterTextColor="#000"
-        clusterFontFamily="mon-sb"
-        renderCluster={renderCluster}>
+        initialRegion={INITIAL_REGION}>
         {/* Render all our marker as usual */}
         {listings.features.map((item: any) => (
           <Marker

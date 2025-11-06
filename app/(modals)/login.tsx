@@ -1,7 +1,8 @@
 import Colors from '@/constants/Colors';
-import { useOAuth } from '@clerk/clerk-expo';
+import { useOAuth, useAuth } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { View, StyleSheet, TextInput, Text, TouchableOpacity } from 'react-native';
 
 // https://github.com/clerkinc/clerk-expo-starter/blob/main/components/OAuth.tsx
@@ -17,9 +18,33 @@ const Page = () => {
   useWarmUpBrowser();
 
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
   const { startOAuthFlow: googleAuth } = useOAuth({ strategy: 'oauth_google' });
   const { startOAuthFlow: appleAuth } = useOAuth({ strategy: 'oauth_apple' });
   const { startOAuthFlow: facebookAuth } = useOAuth({ strategy: 'oauth_facebook' });
+
+  // If user is already signed in, show a message and option to go to profile
+  if (isLoaded && isSignedIn) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ fontSize: 18, fontFamily: 'mon-sb', marginBottom: 20, textAlign: 'center' }}>
+          You are already logged in!
+        </Text>
+        <TouchableOpacity
+          style={defaultStyles.btn}
+          onPress={() => router.replace('/(tabs)/profile')}
+        >
+          <Text style={defaultStyles.btnText}>Go to Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.btnOutline, { marginTop: 20 }]}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.btnOutlineText}>Back to App</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const onSelectAuth = async (strategy: Strategy) => {
     const selectedAuth = {

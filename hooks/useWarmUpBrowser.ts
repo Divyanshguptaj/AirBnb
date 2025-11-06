@@ -5,7 +5,10 @@ export const useWarmUpBrowser = () => {
   useEffect(() => {
     void WebBrowser.warmUpAsync();
     return () => {
-      void WebBrowser.coolDownAsync();
+      // Only call coolDownAsync if warmUpAsync was successful
+      void WebBrowser.coolDownAsync().catch(() => {
+        // Ignore errors during cleanup
+      });
     };
   }, []);
 };

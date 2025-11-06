@@ -4,9 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { View, StyleSheet, TextInput, Text, TouchableOpacity } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 
 // https://github.com/clerkinc/clerk-expo-starter/blob/main/components/OAuth.tsx
-import { useWarmUpBrowser } from '@/hooks/useWarmUpBrowser';
 import { defaultStyles } from '@/constants/Styles';
 
 enum Strategy {
@@ -15,7 +15,26 @@ enum Strategy {
   Facebook = 'oauth_facebook',
 }
 const Page = () => {
-  useWarmUpBrowser();
+  // Safely warm up the Expo in-app browser; catch known failures to avoid unhandled promise rejections.
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await WebBrowser.warmUpAsync();
+      } catch (err) {
+        // Some environments (custom dev clients, etc.) reject warmUpAsync with:
+        // "Cannot determine preferred package without satisfying it". This is safe to ignore.
+        console.warn('WebBrowser.warmUpAsync failed (ignored):', err);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+      WebBrowser.coolDownAsync().catch(() => {
+        /* ignore cleanup errors */
+      });
+    };
+  }, []);
 
   const router = useRouter();
   const { isLoaded, isSignedIn } = useAuth();

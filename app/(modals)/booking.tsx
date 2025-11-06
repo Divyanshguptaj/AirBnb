@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, ScrollView, Image, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
